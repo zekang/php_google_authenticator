@@ -12,7 +12,7 @@
    | obtain it through the world-wide-web, please send a note to          |
    | license@php.net so we can mail you a copy immediately.               |
    +----------------------------------------------------------------------+
-   | Author:                                                              |
+   | Author: wanghouqian <whq654321@126.com>                              |
    +----------------------------------------------------------------------+
    */
 
@@ -34,12 +34,14 @@
 */
 ZEND_DECLARE_MODULE_GLOBALS(google_authenticator)
 
-		/* True global resources - no need for thread safety here */
+/* True global resources - no need for thread safety here */
 static int le_google_authenticator;
 typedef unsigned char uchar;
 
 zend_class_entry *google_authenticator_ce;
 
+/*{{{ static inline void php_hash_string_xor_char(uchar *out, const uchar *in, const uchar xor_with, const int length) 
+ */
 static inline void php_hash_string_xor_char(uchar *out, const uchar *in, const uchar xor_with, const int length) 
 {
 		int i;
@@ -47,7 +49,10 @@ static inline void php_hash_string_xor_char(uchar *out, const uchar *in, const u
 				out[i] = in[i] ^ xor_with;
 		}
 }
+/*}}}*/
 
+/*{{{ static inline void php_hash_string_xor(uchar *out, const uchar *in, const uchar *xor_with, const int length)
+ */
 static inline void php_hash_string_xor(uchar *out, const uchar *in, const uchar *xor_with, const int length)
 {
 		int i;
@@ -55,7 +60,10 @@ static inline void php_hash_string_xor(uchar *out, const uchar *in, const uchar 
 				out[i] = in[i] ^ xor_with[i];
 		}
 }
+/*}}}*/
 
+/*{{{ static inline void php_hash_hmac_prep_key(uchar *K, const php_hash_ops *ops, void *context, const uchar *key, const int key_len)
+ */
 static inline void php_hash_hmac_prep_key(uchar *K, const php_hash_ops *ops, void *context, const uchar *key, const int key_len)
 {
 		memset(K, 0, ops->block_size);
@@ -70,7 +78,10 @@ static inline void php_hash_hmac_prep_key(uchar *K, const php_hash_ops *ops, voi
 		/* XOR the key with 0x36 to get the ipad) */
 		php_hash_string_xor_char(K, K, 0x36, ops->block_size);
 }
+/**}}}*/
 
+/*{{{ static inline void php_hash_hmac_round( uchar *final, const php_hash_ops *ops, void *context, const uchar *key, const uchar *data, const long data_size) 
+*/
 static inline void php_hash_hmac_round( uchar *final, const php_hash_ops *ops, void *context, const uchar *key, const uchar *data, const long data_size) 
 {
 		ops->hash_init(context);
@@ -78,7 +89,10 @@ static inline void php_hash_hmac_round( uchar *final, const php_hash_ops *ops, v
 		ops->hash_update(context, data, data_size);
 		ops->hash_final(final, context);
 }
+/*}}}*/
 
+/*{{{ static int hmac_sha1(const char *key,int keyLength,const char *data,int dataLength,char **result TSRMLS_DC)
+ */
 static int hmac_sha1(const char *key,int keyLength,const char *data,int dataLength,char **result TSRMLS_DC)
 {
 		char *K, *digest;
@@ -102,8 +116,10 @@ static int hmac_sha1(const char *key,int keyLength,const char *data,int dataLeng
 		*result = digest;
 		return ops->digest_size;
 }
+/*}}}*/
 
-
+/*{{{ int base32_decode(const uchar *encoded,int length, uchar **return_value TSRMLS_DC) {
+ */
 int base32_decode(const uchar *encoded,int length, uchar **return_value TSRMLS_DC) {
 		int buffer = 0;
 		int bitsLeft = 0;
@@ -143,7 +159,10 @@ int base32_decode(const uchar *encoded,int length, uchar **return_value TSRMLS_D
 		*return_value = result;
 		return count;
 }
+/*}}}*/
 
+/*{{{ int base32_encode(const uchar *data, int length, uchar **return_value TSRMLS_DC) 
+ */
 int base32_encode(const uchar *data, int length, uchar **return_value TSRMLS_DC) 
 {
 		uchar * result;
@@ -180,7 +199,10 @@ int base32_encode(const uchar *data, int length, uchar **return_value TSRMLS_DC)
 		*return_value = result;
 		return count;
 }
+/*}}}*/
 
+/*{{{ static int generateCode(const char *key,int key_len,ulong tm TSRMLS_DC)
+ */
 static int generateCode(const char *key,int key_len,ulong tm TSRMLS_DC)
 {
 	uchar challenge[8],*secret=NULL,*hash=NULL;	
@@ -210,6 +232,8 @@ static int generateCode(const char *key,int key_len,ulong tm TSRMLS_DC)
 	}
 	return truncatedHash;
 }
+/**}}}*/
+
 /* {{{ arg_info
  * */
 ZEND_BEGIN_ARG_INFO_EX(arg_info_validate, 0, 0, 2)
@@ -253,7 +277,6 @@ const zend_function_entry google_authenticator_functions[] = {
 		PHP_FE_END	/* Must be the last line in google_authenticator_functions[] */
 };
 /* }}} */
-
 
 /*{{{	proto public GoogleAuthenticator::log($secretKey, $code)
  * */
@@ -313,7 +336,6 @@ ZEND_METHOD(GoogleAuthenticator,base32_decode)
 		RETURN_STRINGL(tmp, len, 0);
 }
 /* }}} */
-
 
 /*{{{	proto public GoogleAuthenticator::generateSecretKey($token=NULL)
  * */
@@ -390,8 +412,6 @@ ZEND_METHOD(GoogleAuthenticator,getQRBarcodeURL)
 }
 /* }}} */
 
-
-
 /* {{{ google_authenticator_methods[]
  */
 const zend_function_entry google_authenticator_methods[] = {
@@ -431,6 +451,8 @@ zend_module_entry google_authenticator_module_entry = {
 ZEND_GET_MODULE(google_authenticator)
 #endif
 
+/*{{{ static PHP_INI_MH(OnUpdateWindowSize)
+ */
 static PHP_INI_MH(OnUpdateWindowSize)
 {
 	int default_value = 3;
@@ -446,6 +468,8 @@ static PHP_INI_MH(OnUpdateWindowSize)
 	GOOGLE_AUTHENTICATOR_G(window_size) = default_value;
 	return SUCCESS;
 }
+/**}}}*/
+
 /* {{{ PHP_INI */
 PHP_INI_BEGIN()
 STD_PHP_INI_ENTRY("google_authenticator.window_size","3", PHP_INI_ALL, OnUpdateWindowSize, window_size, zend_google_authenticator_globals, google_authenticator_globals)
@@ -458,6 +482,7 @@ static void php_google_authenticator_init_globals(zend_google_authenticator_glob
 		google_authenticator_globals->window_size  = 3;
 }
 /* }}} */
+
 /* {{{ PHP_MINIT_FUNCTION */
 PHP_MINIT_FUNCTION(google_authenticator)
 {
@@ -479,7 +504,6 @@ PHP_MSHUTDOWN_FUNCTION(google_authenticator)
 }
 /* }}} */
 
-/* Remove if there's nothing to do at request start */
 /* {{{ PHP_RINIT_FUNCTION
 */
 PHP_RINIT_FUNCTION(google_authenticator)
@@ -488,7 +512,6 @@ PHP_RINIT_FUNCTION(google_authenticator)
 }
 /* }}} */
 
-/* Remove if there's nothing to do at request end */
 /* {{{ PHP_RSHUTDOWN_FUNCTION
 */
 PHP_RSHUTDOWN_FUNCTION(google_authenticator)
@@ -503,12 +526,11 @@ PHP_MINFO_FUNCTION(google_authenticator)
 {
 		php_info_print_table_start();
 		php_info_print_table_header(2, "google_authenticator support", "enabled");
+		php_info_print_table_row(2, "php_google_authenticator Supports", "https://github.com/zekang/php_google_authenticator");
 		php_info_print_table_end();
 		DISPLAY_INI_ENTRIES();
 }
 /* }}} */
-
-
 
 /* The previous line is meant for vim and emacs, so it can correctly fold and 
    unfold functions in source code. See the corresponding marks just before 
