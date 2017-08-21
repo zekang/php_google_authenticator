@@ -28,7 +28,6 @@ php_google_authenticator是google身份验证器服务端php实现，可用于�
     编辑配置文件`php.ini`，增加下面配置信息。
     ```
     extension=php_google_authenticator.so
-    google_authenticator.window_size = 3     
     ```
 
 ## 使用
