@@ -68,6 +68,11 @@ ZEND_END_MODULE_GLOBALS(google_authenticator)
 #define GOOGLE_AUTHENTICATOR_G(v) (google_authenticator_globals.v)
 #endif
 
+#ifndef PHP_FE_END 
+#define ZEND_FE_END            { NULL, NULL, NULL, 0, 0 }
+#define PHP_FE_END ZEND_FE_END
+#endif
+
 #endif	/* PHP_GOOGLE_AUTHENTICATOR_H */
 
 

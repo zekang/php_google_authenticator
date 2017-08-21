@@ -273,7 +273,7 @@ ZEND_END_ARG_INFO()
  *
  * Every user visible function must have an entry in google_authenticator_functions[].
  */
-const zend_function_entry google_authenticator_functions[] = {
+zend_function_entry google_authenticator_functions[] = {
 		PHP_FE_END	/* Must be the last line in google_authenticator_functions[] */
 };
 /* }}} */
@@ -414,7 +414,7 @@ ZEND_METHOD(GoogleAuthenticator,getQRBarcodeURL)
 
 /* {{{ google_authenticator_methods[]
  */
-const zend_function_entry google_authenticator_methods[] = {
+zend_function_entry google_authenticator_methods[] = {
 	ZEND_ME(GoogleAuthenticator,validate,arg_info_validate,ZEND_ACC_PUBLIC)
 	ZEND_ME(GoogleAuthenticator,base32_encode,arg_info_base32_encode,ZEND_ACC_PUBLIC)
 	ZEND_ME(GoogleAuthenticator,base32_decode,arg_info_base32_decode,ZEND_ACC_PUBLIC)
