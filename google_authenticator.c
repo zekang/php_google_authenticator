@@ -118,9 +118,10 @@ static int hmac_sha1(const char *key,int keyLength,const char *data,int dataLeng
 }
 /*}}}*/
 
-/*{{{ int base32_decode(const uchar *encoded,int length, uchar **return_value TSRMLS_DC) {
+/*{{{ int base32_decode(const uchar *encoded,int length, uchar **return_value TSRMLS_DC)
  */
-int base32_decode(const uchar *encoded,int length, uchar **return_value TSRMLS_DC) {
+int base32_decode(const uchar *encoded,int length, uchar **return_value TSRMLS_DC) 
+{
 		int buffer = 0;
 		int bitsLeft = 0;
 		int count = 0;
